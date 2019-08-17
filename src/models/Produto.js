@@ -10,6 +10,10 @@ const ProdutoSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    img: {
+        type: String,
+        default: null
+    },
     id_valor: {
         type: String,
         required: true,
@@ -23,10 +27,10 @@ const ProdutoSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
-    deltado_em: {
+    deletado_em: {
         type: Date,
         default: null,
-    }
+    }    
 });
 
 const Produto = mongoose.model('Produto', ProdutoSchema);

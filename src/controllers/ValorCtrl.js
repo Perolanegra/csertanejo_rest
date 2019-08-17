@@ -4,12 +4,12 @@ const ValorEntity = require('../models/Valor');
 
 const router = expreess.Router();
 
-router.post('/create', async (req, res) => {
+router.post('/inserir', async (req, res) => {
     const postData = req.body;
     const sqlParams = { valor_pequeno: postData.valor_pequeno, 
         valor_medio: postData.valor_medio, valor_grande: postData.valor_grande, 
         pontos: postData.pontos };
-        
+
     let hasData;
 
     try {
@@ -20,7 +20,6 @@ router.post('/create', async (req, res) => {
 
             hasData = resp.length ? true : false;
         });
-
 
         if(hasData) {
             return res.status(400).send({ err: { message: 'Valores já existentes.' } });
@@ -34,5 +33,42 @@ router.post('/create', async (req, res) => {
         return res.status(400).send({ err: { message: 'Falha ao inserir Valores;', e }  });
     }
 });
+
+router.get('/obterTodos', async (req, res) => {
+    try {
+        const valores = await ValorEntity.find();
+
+        return res.send({ valores });
+
+    } catch (e) {
+        return res.status(400).send({ err: { message: 'Falha ao obter Valores;', e }  });
+    }
+});
+
+router.delete('/delete', async (req, res) => {
+    const paramsDelete = req.body;
+    
+    try {
+        const respDelete =  ValorEntity.find({ "_id": paramsDelete.id }).update({ deletado_em: Date.now }).exec();
+        
+        return res.send({ respDelete });
+        
+    } catch (e) {
+        return res.status(400).send({ err: { message: 'Falha em excluir os Produtos.', e }  });
+    }
+});
+
+// router.delete('/excluirPorId', async (req, res) => {
+//     const paramsDelete = req.body;
+    
+//     try {
+//         const respDelete =  ValorEntity.findByIdAndRemove(({ "_id": paramsDelete.id })).exec();
+        
+//         return res.send({ respDelete });
+        
+//     } catch (e) {
+//         return res.status(400).send({ err: { message: 'Falha em excluir os Produtos.', e }  });
+//     }
+// });
 
 module.exports = (app) => app.use('/valores', router);
