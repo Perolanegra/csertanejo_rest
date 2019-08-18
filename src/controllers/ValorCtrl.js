@@ -27,7 +27,7 @@ router.post('/inserir', async (req, res) => {
 
         const valores = await ValorEntity.create(req.body);
 
-        return res.send({ valores }); // Enviando os valores da minha Entidade para a requisição.    
+        return res.send(valores); // Enviando os valores da minha Entidade para a requisição.    
 
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha ao inserir Valores;', e }  });
@@ -38,7 +38,7 @@ router.get('/obterTodos', async (req, res) => {
     try {
         const valores = await ValorEntity.find();
 
-        return res.send({ valores });
+        return res.send(valores);
 
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha ao obter Valores;', e }  });
@@ -51,7 +51,7 @@ router.delete('/delete', async (req, res) => {
     try {
         const respDelete =  ValorEntity.find({ "_id": paramsDelete.id }).update({ deletado_em: Date.now }).exec();
         
-        return res.send({ respDelete });
+        return res.send(respDelete);
         
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha em excluir os Produtos.', e }  });

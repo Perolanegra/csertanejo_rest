@@ -24,7 +24,7 @@ router.post('/inserir', async (req, res) => {
 
         const produtos = await ProdutoEntity.create(postData);
 
-        return res.send({ produtos });
+        return res.send(produtos);
         
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha ao inserir produto.', e }  });
@@ -35,7 +35,7 @@ router.get('/obterTodos', async (req, res) => {
     try {
         const produtos = await ProdutoEntity.find({ deletado_em: null });
 
-        return res.send({ produtos });
+        return res.send(produtos);
         
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha em retornar os Produtos.', e }  });
@@ -48,7 +48,7 @@ router.delete('/delete', async (req, res) => {
     try {
         const respDelete =  ProdutoEntity.find({ "_id": paramsDelete.id }).update({ deletado_em: Date.now }).exec();
         
-        return res.send({ respDelete });
+        return res.send(respDelete);
         
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha em deletar o Produto.', e }  });
