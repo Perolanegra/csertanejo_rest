@@ -56,24 +56,11 @@ router.delete('/delete', async (req, res) => {
 });
 
 router.patch('/atualizar', async (req, res) => {
-    let hasData;
-
     try {
-        await ProdutoModel.find(...req.body.hasEntries, (e, resp) => {
-            if(e) {
-                return res.status(400).send({ err: { message: 'Operação Indisponível no momento.' } });
-            }
-            
-            hasData = resp.length ? true : false;
-        });
-        
-        if(hasData) {
-            const respAtualizar = await ProdutoModel.updateOne({ deletado_em: null, _id: req.body._id }, { $set: req.body.postData }, { strict: false });
-    
-            return res.send(respAtualizar);
-        }
-        
-        throw new Error();
+        const respAtualizar = await ProdutoModel.updateOne({ deletado_em: null, _id: req.body._id }, { $set: req.body.postData });
+
+        return res.send(respAtualizar);
+
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha ao atualizar registro.', e }});
     }

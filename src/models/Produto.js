@@ -35,6 +35,7 @@ const ProdutoSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    valores: [Number]
 });
 
 const Produto = mongoose.model('Produto', ProdutoSchema);
