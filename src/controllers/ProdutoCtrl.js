@@ -4,7 +4,7 @@ const ProdutoModel = require('../models/Produto');
 
 const router = express.Router();
 
-router.post('/inserir', async (req, res) => {
+router.post('/cadastrar', async (req, res) => {
     const postData = req.body;
 
     let hasData;
@@ -51,16 +51,27 @@ router.delete('/delete', async (req, res) => {
         return res.send(respDelete);
         
     } catch (e) {
-        return res.status(400).send({ err: { message: 'Falha em deletar o Produto.', e }  });
+        return res.status(400).send({ err: { message: 'Falha em deletar o Produto.', e }});
+    }
+});
+
+router.patch('/atualizar', async (req, res) => {
+    try {
+        const respAtualizar = await ProdutoModel.updateOne({ deletado_em: null, _id: req.body.id }, { $set: req.body.postData }, { strict: false });
+
+        return res.send(respAtualizar);
+        
+    } catch (e) {
+        return res.status(400).send({ err: { message: 'Falha ao atualizar registro.', e }});
     }
 });
 
 /**Recebe da requisição o JSON chave - valor do novo campo do Schema */
 router.patch('/addSchemaField', async (req, res) => {
     try {
-        const respUpdate = await ProdutoModel.updateMany({ deletado_em: null }, { $set: req.body }, { new: true, strict: false });
+        const respAdd = await ProdutoModel.updateMany({ deletado_em: null }, { $set: req.body }, { new: true, strict: false });
 
-        return res.send(respUpdate);
+        return res.send(respAdd);
 
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha em adicionar um campo no Schema.', e }  });
