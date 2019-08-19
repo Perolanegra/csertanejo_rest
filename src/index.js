@@ -9,6 +9,5 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
 require('./controllers/ProdutoCtrl')(app);
-require('./controllers/ValorCtrl')(app);
 
 app.listen(3000);

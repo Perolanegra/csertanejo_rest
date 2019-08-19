@@ -33,7 +33,7 @@ router.post('/cadastrar', async (req, res) => {
 
 router.get('/obterTodos', async (req, res) => {
     try {
-        const produtos = await ProdutoModel.find({ deletado_em: null });
+        const produtos = await ProdutoModel.find({ deletado_em: { $exists: true, $in: [null] } });
 
         return res.send(produtos);
         
@@ -56,11 +56,24 @@ router.delete('/delete', async (req, res) => {
 });
 
 router.patch('/atualizar', async (req, res) => {
-    try {
-        const respAtualizar = await ProdutoModel.updateOne({ deletado_em: null, _id: req.body.id }, { $set: req.body.postData }, { strict: false });
+    let hasData;
 
-        return res.send(respAtualizar);
+    try {
+        await ProdutoModel.find(...req.body.hasEntries, (e, resp) => {
+            if(e) {
+                return res.status(400).send({ err: { message: 'Operação Indisponível no momento.' } });
+            }
+            
+            hasData = resp.length ? true : false;
+        });
         
+        if(hasData) {
+            const respAtualizar = await ProdutoModel.updateOne({ deletado_em: null, _id: req.body._id }, { $set: req.body.postData }, { strict: false });
+    
+            return res.send(respAtualizar);
+        }
+        
+        throw new Error();
     } catch (e) {
         return res.status(400).send({ err: { message: 'Falha ao atualizar registro.', e }});
     }
