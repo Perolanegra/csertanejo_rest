@@ -1,6 +1,6 @@
 const expreess = require('express');
 
-const ValorEntity = require('../models/Valor');
+const Valor = require('../models/Valor');
 
 const router = expreess.Router();
 
@@ -13,7 +13,7 @@ router.post('/inserir', async (req, res) => {
     let hasData;
 
     try {
-        await ValorEntity.find(sqlParams, (e, resp) => {
+        await Valor.find(sqlParams, (e, resp) => {
             if(e) {
                 return res.status(400).send({ err: { message: 'Operação Indisponível no momento.' } });
             }
@@ -25,7 +25,7 @@ router.post('/inserir', async (req, res) => {
             return res.status(400).send({ err: { message: 'Valores já existentes.' } });
         }
 
-        const valores = await ValorEntity.create(req.body);
+        const valores = await Valor.create(req.body);
 
         return res.send(valores); // Enviando os valores da minha Entidade para a requisição.    
 
@@ -36,7 +36,7 @@ router.post('/inserir', async (req, res) => {
 
 router.get('/obterTodos', async (req, res) => {
     try {
-        const valores = await ValorEntity.find();
+        const valores = await Valor.find();
 
         return res.send(valores);
 
@@ -49,7 +49,7 @@ router.delete('/delete', async (req, res) => {
     const paramsDelete = req.body;
     
     try {
-        const respDelete =  ValorEntity.find({ "_id": paramsDelete.id }).update({ deletado_em: Date.now }).exec();
+        const respDelete =  Valor.find({ "_id": paramsDelete.id }).update({ deletado_em: Date.now }).exec();
         
         return res.send(respDelete);
         
@@ -62,7 +62,7 @@ router.delete('/delete', async (req, res) => {
 //     const paramsDelete = req.body;
     
 //     try {
-//         const respDelete =  ValorEntity.findByIdAndRemove(({ "_id": paramsDelete.id })).exec();
+//         const respDelete =  Valor.findByIdAndRemove(({ "_id": paramsDelete.id })).exec();
         
 //         return res.send({ respDelete });
         

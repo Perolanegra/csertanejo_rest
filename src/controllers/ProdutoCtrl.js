@@ -1,6 +1,6 @@
 const express = require('express');
 
-const ProdutoEntity = require('../models/Produto');
+const ProdutoModel = require('../models/Produto');
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ router.post('/inserir', async (req, res) => {
     let hasData;
 
     try {
-        await ProdutoEntity.find(postData, (e, resp) => {
+        await ProdutoModel.find(postData, (e, resp) => {
             if(e) {
                 return res.status(400).send({ err: { message: 'Operação Indisponível no momento.' } });
             }
@@ -22,7 +22,7 @@ router.post('/inserir', async (req, res) => {
             return res.status(400).send({ err: { message: 'Produto já existente.' } });
         }
 
-        const produtos = await ProdutoEntity.create(postData);
+        const produtos = await ProdutoModel.create(postData);
 
         return res.send(produtos);
         
@@ -33,7 +33,7 @@ router.post('/inserir', async (req, res) => {
 
 router.get('/obterTodos', async (req, res) => {
     try {
-        const produtos = await ProdutoEntity.find({ deletado_em: null });
+        const produtos = await ProdutoModel.find({ deletado_em: null });
 
         return res.send(produtos);
         
@@ -46,7 +46,7 @@ router.delete('/delete', async (req, res) => {
     const paramsDelete = req.body;
     
     try {
-        const respDelete =  ProdutoEntity.find({ "_id": paramsDelete.id }).update({ deletado_em: Date.now }).exec();
+        const respDelete =  await ProdutoModel.find({ "_id": paramsDelete.id }).update({ deletado_em: Date.now }).exec();
         
         return res.send(respDelete);
         
@@ -55,23 +55,50 @@ router.delete('/delete', async (req, res) => {
     }
 });
 
+/**Recebe da requisição o JSON chave - valor do novo campo do Schema */
+router.patch('/addSchemaField', async (req, res) => {
+    try {
+        const respUpdate = await ProdutoModel.updateMany({ deletado_em: null }, { $set: req.body }, { new: true, strict: false });
+
+        return res.send(respUpdate);
+
+    } catch (e) {
+        return res.status(400).send({ err: { message: 'Falha em adicionar um campo no Schema.', e }  });
+    }
+});
+
+/**Recebe da requisição o JSON chave - valor do novo campo do Schema */
+router.delete('/removeSchemaField', async (req, res) => {
+    try {
+        const respQuery = await ProdutoModel.updateMany({ deletado_em: null }, { $unset: req.body }, { new: true, strict: false });
+
+        return res.send(respQuery);
+
+    } catch (e) {
+        return res.status(400).send({ err: { message: 'Falha em adicionar um campo no Schema.', e }  });
+    }
+});
+
+/**Exclui o registro através do id passado */
 // router.delete('/excluirPorId', async (req, res) => {
 //     const paramsDelete = req.body;
 
 //     try {
-//         const respDelete = ProdutoEntity.findByIdAndRemove(paramsDelete.id).exec();
+//         const respDelete = ProdutoModel.findByIdAndRemove(paramsDelete.id).exec();
 
-//         return res.send({ respDelete });
+//         return res.send(respDelete);
         
 //     } catch (e) {
 //         return res.status(400).send({ err: { message: 'Falha ao excluir o Produto.', e } });
 //     }
 // });
 
+
+/**Exclui o Schema corrente */
 // router.delete('/remover', async (req, res) => {
 
 //     try {
-//         ProdutoEntity.collection.drop();
+//         ProdutoModel.collection.drop();
 
 //         return res.send({ msg: 'Removido.' });
 

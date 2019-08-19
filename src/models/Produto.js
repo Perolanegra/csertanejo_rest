@@ -30,7 +30,11 @@ const ProdutoSchema = new mongoose.Schema({
     deletado_em: {
         type: Date,
         default: null,
-    }    
+    },
+    likes: {
+        type: Number,
+        default: 0
+    },
 });
 
 const Produto = mongoose.model('Produto', ProdutoSchema);
