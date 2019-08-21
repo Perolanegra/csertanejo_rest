@@ -118,5 +118,6 @@ router.delete('/removeSchemaField', async (req, res) => {
 //     }
 
 // });
+// Person.watch().on('change', data => console.log(new Date(), data));
 
 module.exports = (app) => app.use('/produto', router);
