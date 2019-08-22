@@ -8,10 +8,8 @@ const UsuarioSchema = mongoose.Schema({
     sobrenome: {
         type: String,
         required: false
-    },
-    
+    }
 });
-
 
 const Usuario = mongoose.model('Usuario', UsuarioSchema);
 
