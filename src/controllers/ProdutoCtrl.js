@@ -1,46 +1,56 @@
 const express = require('express');
 
-const ProdutoModel = require('../models/Produto');
+const ProductModel = require('../models/Product');
 
 const router = express.Router();
 
 /**Rota que insere um novo documento de produto */
-router.post('/cadastrar', async (req, res) => {
+router.post('/insert', async (req, res) => {
     const postData = req.body;
-
     let hasData;
 
     try {
-        await ProdutoModel.find(postData, (e, resp) => {
+        await ProductModel.find(postData, (e, resp) => {
             if(e) {
-                return res.status(400).send({ err: { message: 'Operação Indisponível no momento.' } });
+                return res.status(400).send({ err: { message: 'Operation Currently Unavailable.', e } });
             }
             
             hasData = resp.length ? true : false;
         });
 
         if(hasData) {
-            return res.status(400).send({ err: { message: 'Produto já existente.' } });
+            return res.status(409).send({ err: { message: 'Existing product.' } });
         }
 
-        const produtos = await ProdutoModel.create(postData);
+        const produtos = await ProductModel.create(postData);
 
         return res.send(produtos);
         
     } catch (e) {
-        return res.status(400).send({ err: { message: 'Falha ao inserir produto.', e }  });
+        return res.status(400).send({ err: { message: 'Failed to insert products.', e }  });
     }
 });
 
 /**Rota que obtém todos os Produtos */
-router.get('/obterTodos', async (req, res) => {
+router.get('', async (req, res) => { // nodemon
     try {
-        const produtos = await ProdutoModel.find({ deletado_em: { $exists: true, $in: [null] } });
-
+        const produtos = await ProductModel.find({ deletado_em: { $exists: true, $in: [null] } });
+        
         return res.send(produtos);
         
     } catch (e) {
-        return res.status(400).send({ err: { message: 'Falha em retornar os Produtos.', e }  });
+        return res.status(400).send({ err: { message: 'Failed to return products.', e }  });
+    }
+});
+
+router.post('/filter', async (req, res) => {
+    try {
+        const products = await ProductModel.find(req.body);
+        
+        return res.send(products);
+        
+    } catch (e) {
+        return res.status(400).send({ err: { message: 'Failed to return products.', e }  });
     }
 });
 
@@ -50,16 +60,14 @@ router.get('/obterTodos', async (req, res) => {
  * @example Recebe da requisição o atribudo _id.
  * @author igor.silva
  * */
-router.delete('/delete', async (req, res) => {
-    const paramsDelete = req.body;
-    
+router.delete('/:id', async (req, res) => {
     try {
-        const respDelete =  await ProdutoModel.find({ "_id": paramsDelete._id }).update({ deletado_em: Date.now }).exec();
+        const respDelete =  await ProductModel.find({ _id: req.params.id }).update({ deletado_em: Date.now }).exec();
         
         return res.send(respDelete);
         
     } catch (e) {
-        return res.status(400).send({ err: { message: 'Falha em deletar o Produto.', e }});
+        return res.status(400).send({ err: { message: 'Failed to delete product.', e }});
     }
 });
 
@@ -72,12 +80,12 @@ router.delete('/delete', async (req, res) => {
  * */
 router.patch('/atualizarPorId', async (req, res) => {
     try {
-        const respAtualizar = await ProdutoModel.updateOne({ deletado_em: null, _id: req.body._id }, { $set: req.body.postData });
+        const respAtualizar = await ProductModel.updateOne({ deletado_em: null, _id: req.body._id }, { $set: req.body.postData });
 
         return res.send(respAtualizar);
 
     } catch (e) {
-        return res.status(400).send({ err: { message: 'Falha ao atualizar registro.', e }});
+        return res.status(400).send({ err: { message: 'Failed to update data.', e }});
     }
 });
 
@@ -89,24 +97,24 @@ router.patch('/atualizarPorId', async (req, res) => {
  * */
 router.patch('/addSchemaField', async (req, res) => {
     try {
-        const respAdd = await ProdutoModel.updateMany({ deletado_em: null }, { $set: req.body }, { new: true, strict: false });
+        const respAdd = await ProductModel.updateMany({ deletado_em: null }, { $set: req.body }, { new: true, strict: false });
 
         return res.send(respAdd);
 
     } catch (e) {
-        return res.status(400).send({ err: { message: 'Falha em adicionar um campo no Schema.', e }  });
+        return res.status(400).send({ err: { message: ' Failed to add a field in Schema.', e }  });
     }
 });
 
 /**Recebe da requisição o JSON chave - valor do novo campo do Schema */
 router.delete('/removeSchemaField', async (req, res) => {
     try {
-        const respQuery = await ProdutoModel.updateMany({ deletado_em: null }, { $unset: req.body }, { new: true, strict: false });
+        const respQuery = await ProductModel.updateMany({ deletado_em: null }, { $unset: req.body }, { new: true, strict: false });
 
         return res.send(respQuery);
 
     } catch (e) {
-        return res.status(400).send({ err: { message: 'Falha em adicionar um campo no Schema.', e }  });
+        return res.status(400).send({ err: { message: ' Failed to add a field in Schema.', e }  });
     }
 });
 
@@ -115,7 +123,7 @@ router.delete('/removeSchemaField', async (req, res) => {
 //     const paramsDelete = req.body;
 
 //     try {
-//         const respDelete = ProdutoModel.findByIdAndRemove(paramsDelete.id).exec();
+//         const respDelete = ProductModel.findByIdAndRemove(paramsDelete.id).exec();
 
 //         return res.send(respDelete);
         
@@ -129,7 +137,7 @@ router.delete('/removeSchemaField', async (req, res) => {
 // router.delete('/remover', async (req, res) => {
 
 //     try {
-//         ProdutoModel.collection.drop();
+//         ProductModel.collection.drop();
 
 //         return res.send({ msg: 'Removido.' });
 
@@ -140,4 +148,4 @@ router.delete('/removeSchemaField', async (req, res) => {
 // });
 // Person.watch().on('change', data => console.log(new Date(), data));
 
-module.exports = (app) => app.use('/produto', router);
+module.exports = (app) => app.use('/products', router);
