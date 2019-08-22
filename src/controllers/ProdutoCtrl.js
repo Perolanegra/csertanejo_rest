@@ -4,6 +4,7 @@ const ProdutoModel = require('../models/Produto');
 
 const router = express.Router();
 
+/**Rota que insere um novo documento de produto */
 router.post('/cadastrar', async (req, res) => {
     const postData = req.body;
 
@@ -31,6 +32,7 @@ router.post('/cadastrar', async (req, res) => {
     }
 });
 
+/**Rota que obtém todos os Produtos */
 router.get('/obterTodos', async (req, res) => {
     try {
         const produtos = await ProdutoModel.find({ deletado_em: { $exists: true, $in: [null] } });
@@ -42,11 +44,17 @@ router.get('/obterTodos', async (req, res) => {
     }
 });
 
+/** 
+ * @description Rota que inativa o registro através do id
+ * @param _id
+ * @example Recebe da requisição o atribudo _id.
+ * @author igor.silva
+ * */
 router.delete('/delete', async (req, res) => {
     const paramsDelete = req.body;
     
     try {
-        const respDelete =  await ProdutoModel.find({ "_id": paramsDelete.id }).update({ deletado_em: Date.now }).exec();
+        const respDelete =  await ProdutoModel.find({ "_id": paramsDelete._id }).update({ deletado_em: Date.now }).exec();
         
         return res.send(respDelete);
         
@@ -55,7 +63,14 @@ router.delete('/delete', async (req, res) => {
     }
 });
 
-router.patch('/atualizar', async (req, res) => {
+/** 
+ * @description Rota que atualiza algum valor, ou valores de um documento pelo id
+ * @param _id
+ * @param { likes: 5 }
+ * @example Recebe da requisição um atributo JSON postData contendo chave: valor do novo campo do Schema.
+ * @author igor.silva
+ * */
+router.patch('/atualizarPorId', async (req, res) => {
     try {
         const respAtualizar = await ProdutoModel.updateOne({ deletado_em: null, _id: req.body._id }, { $set: req.body.postData });
 
@@ -66,7 +81,12 @@ router.patch('/atualizar', async (req, res) => {
     }
 });
 
-/**Recebe da requisição o JSON chave - valor do novo campo do Schema */
+/** 
+ * @description Rota que adiciona um campo novo no documento.
+ * @param { novo_campo: "valor_campo" }
+ * @example Recebe da requisição o JSON chave: valor do novo campo do Schema.
+ * @author igor.silva
+ * */
 router.patch('/addSchemaField', async (req, res) => {
     try {
         const respAdd = await ProdutoModel.updateMany({ deletado_em: null }, { $set: req.body }, { new: true, strict: false });

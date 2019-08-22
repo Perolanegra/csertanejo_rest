@@ -35,7 +35,14 @@ const ProdutoSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    valores: [Number]
+    valores: {
+        type: [Number],
+        required: true
+    },
+    tamanho: {
+        type: [String],
+        required: true
+    }
 });
 
 const Produto = mongoose.model('Produto', ProdutoSchema);
